@@ -1,11 +1,14 @@
 package tw.brad.android.games.mydevicetest;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -18,12 +21,15 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private TelephonyManager tmgr;
     private MyListener myListener;
     private int lastState = -1;
     private ImageView img;
 
+    private SensorManager smgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,35 +57,46 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
         img = (ImageView)findViewById(R.id.img);
 
-        tmgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        String deviceid = tmgr.getDeviceId();
-        Log.i("brad", "IMEI:" + deviceid);
-        String num = tmgr.getLine1Number();
-        Log.i("brad", "phone:" + num);
-        String IMSI = tmgr.getSubscriberId();
-        Log.i("brad", "IMSI:" + IMSI);
+        smgr = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-        myListener = new MyListener();
-        tmgr.listen(myListener,PhoneStateListener.LISTEN_CALL_STATE);
-
-        String name = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME;
-        String number = ContactsContract.CommonDataKinds.Phone.NUMBER;
-        ContentResolver cr = getContentResolver();  // SQLiteDatabase => db
-        Cursor c = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
-        while (c.moveToNext()){
-            String f1 = c.getString(c.getColumnIndex(name));
-            String f2 = c.getString(c.getColumnIndex(number));
-            Log.i("brad", f1 + " : " + f2);
+        List<Sensor> sensors= smgr.getSensorList(Sensor.TYPE_ALL);
+        for (Sensor sensor : sensors){
+            String name = sensor.getName();
+            String v = sensor.getVendor();
+            Log.i("brad", name + ":" + v);
         }
-        c.close();
 
-        c = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,null,null,null,null);
-        c.moveToLast();
-        String file = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-        Log.i("brad", file);
 
-        Bitmap bmp = BitmapFactory.decodeFile(file);
-        img.setImageBitmap(bmp);
+//        tmgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+//        String deviceid = tmgr.getDeviceId();
+//        Log.i("brad", "IMEI:" + deviceid);
+//        String num = tmgr.getLine1Number();
+//        Log.i("brad", "phone:" + num);
+//        String IMSI = tmgr.getSubscriberId();
+//        Log.i("brad", "IMSI:" + IMSI);
+
+//        myListener = new MyListener();
+//        tmgr.listen(myListener,PhoneStateListener.LISTEN_CALL_STATE);
+
+//        String name = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME;
+//        String number = ContactsContract.CommonDataKinds.Phone.NUMBER;
+//        ContentResolver cr = getContentResolver();  // SQLiteDatabase => db
+//        Cursor c = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
+//        while (c.moveToNext()){
+//            String f1 = c.getString(c.getColumnIndex(name));
+//            String f2 = c.getString(c.getColumnIndex(number));
+//            Log.i("brad", f1 + " : " + f2);
+//        }
+//        c.close();
+
+
+//        c = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,null,null,null,null);
+//        c.moveToLast();
+//        String file = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+//        Log.i("brad", file);
+//
+//        Bitmap bmp = BitmapFactory.decodeFile(file);
+//        img.setImageBitmap(bmp);
 
 
 
